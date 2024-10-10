@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Adicionar Movimentação de Estoque</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Adicionar</button>
+        <a href="{% url 'listar_movimentacoes' %}" class="btn btn-secondary mt-2">Voltar</a>
+    </form>
+</div>
+{% endblock %}

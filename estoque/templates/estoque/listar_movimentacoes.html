@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <h2 class="ml-3">Lista de Movimentações</h2>
+        <a href="{% url 'adicionar_movimentacao' %}" class="btn btn-success mb-2">Adicionar Movimentação</a>
+    </div>
+
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="busca" class="form-control" placeholder="Buscar por nome..." value="{{ busca|default:'' }}">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </form>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimentacao in movimentacoes %}
+            <tr>
+                <td>{{ movimentacao.id }}</td>
+                <td>{{ movimentacao.produto.nome }}</td>
+                <td>{{ movimentacao.tipo }}</td>
+                <td>{{ movimentacao.quantidade }}</td>
+                <td>{{ movimentacao.data }}</td>
+                <td>
+                    <a href="{% url 'editar_movimentacao' movimentacao.id %}" class="btn btn-warning">Editar</a>
+                    <a href="{% url 'excluir_movimentacao' movimentacao.id %}" class="btn btn-danger">Excluir</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
