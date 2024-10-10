@@ -1,0 +1,85 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+    <h1 class="my-4">Dashboard de Estoque</h1>
+
+    <div class="row">
+        <!-- Estatísticas de Estoque -->
+        <div class="col-md-4">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Estoque Baixo</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ produtos_baixo_estoque.count }} produtos</h5>
+                    <p class="card-text">Produtos com menos de 10 unidades em estoque.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vencimentos Próximos -->
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Próximos Vencimentos</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ proximos_vencimentos.count }} produtos</h5>
+                    <p class="card-text">Produtos que vencem nos próximos 7 dias.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movimentações -->
+        <div class="col-md-4">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Movimentações</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ entradas }} entradas / {{ saidas }} saídas</h5>
+                    <p class="card-text">Movimentações nos últimos 30 dias.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumo Financeiro -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Vendas</div>
+                <div class="card-body">
+                    <h5 class="card-title">R$ {{ total_vendas }}</h5>
+                    <p class="card-text">Total de vendas realizadas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header">Despesas</div>
+                <div class="card-body">
+                    <h5 class="card-title">R$ {{ despesas }}</h5>
+                    <p class="card-text">Total de despesas do mês.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabelas detalhadas -->
+    <h2 class="my-4">Detalhes de Produtos</h2>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Fornecedor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in produtos_baixo_estoque %}
+            <tr>
+                <td>{{ produto.nome }}</td>
+                <td>{{ produto.quantidade }}</td>
+                <td>R$ {{ produto.preco }}</td>
+                <td>{{ produto.fornecedor.nome }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

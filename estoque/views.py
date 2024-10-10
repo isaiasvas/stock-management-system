@@ -3,6 +3,43 @@ from .models import Produto, Fornecedor, Movimentacao
 from .forms import ProdutoForm, FornecedorForm, MovimentacaoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from datetime import datetime, timedelta
+
+# Tela inicial / Dashboard
+@login_required
+def dashboard(request):
+    # Produtos com estoque baixo (exemplo: menos de 10 unidades)
+    produtos_baixo_estoque = Produto.objects.filter(quantidade__lt=10)
+
+    # Produtos próximos da validade (exemplo: vencem em 7 dias)
+    hoje = datetime.today().date()
+    proximos_vencimentos = Produto.objects.filter(data_validade__range=[hoje, hoje + timedelta(days=7)])
+
+    # Estatísticas de movimentação (últimos 30 dias)
+    movimentacoes = Movimentacao.objects.filter(data__gte=hoje - timedelta(days=30))
+    entradas = movimentacoes.filter(tipo='entrada').count()
+    saidas = movimentacoes.filter(tipo='saida').count()
+
+    # Total de fornecedores ativos
+    total_fornecedores = Fornecedor.objects.count()
+
+    # Dados financeiros fictícios (a implementar)
+    total_vendas = 10000  # Placeholder para fluxo de caixa
+    despesas = 4000  # Placeholder para despesas
+
+    context = {
+        'produtos_baixo_estoque': produtos_baixo_estoque,
+        'proximos_vencimentos': proximos_vencimentos,
+        'entradas': entradas,
+        'saidas': saidas,
+        'total_fornecedores': total_fornecedores,
+        'total_vendas': total_vendas,
+        'despesas': despesas,
+    }
+
+    return render(request, 'estoque/dashboard.html', context)
+
+
 
 # Listar produtos
 @login_required
@@ -19,13 +56,13 @@ def listar_produtos(request):
 @login_required
 def adicionar_produto(request):
     if request.method == 'POST':
-        form = ProdutoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Produto adicionado com sucesso!')
-            return redirect('listar_produtos')
+        form = ProdutoForm(request.POST) # Recupera o formulario através do request
+        if form.is_valid(): # Verifica se o form é valido
+            form.save() # Salva no banco
+            messages.success(request, 'Produto adicionado com sucesso!') # Mensagem de sucesso
+            return redirect('listar_produtos') # Retorna para pagina de listagem
         else:
-            messages.error(request, 'Erro ao adicionar produto. Verifique os dados e tente novamente.')
+            messages.error(request, 'Erro ao adicionar produto. Verifique os dados e tente novamente.') # Caso ocorra algum erro
     else:
         form = ProdutoForm()
     return render(request, 'estoque/adicionar_produto.html', {'form': form})
@@ -33,15 +70,15 @@ def adicionar_produto(request):
 # Editar produto
 @login_required
 def editar_produto(request, pk):
-    produto = get_object_or_404(Produto, pk=pk)
-    if request.method == 'POST':
-        form = ProdutoForm(request.POST, instance=produto)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Produto editado com sucesso!')
-            return redirect('listar_produtos')
+    produto = get_object_or_404(Produto, pk=pk) # Encontra ou erro 404
+    if request.method == 'POST': # Verifica se está no METHOD __POST__
+        form = ProdutoForm(request.POST, instance=produto) # Recupera dados do formulário e adiciona as alterações 
+        if form.is_valid(): # Verifica se o form é valido
+            form.save() # Salva no banco
+            messages.success(request, 'Produto editado com sucesso!') # Mensagem de Sucesso
+            return redirect('listar_produtos') # Retorna para pagina de listagem
         else:
-            messages.error(request, 'Erro ao editar produto. Verifique os dados e tente novamente.')
+            messages.error(request, 'Erro ao editar produto. Verifique os dados e tente novamente.') # Caso ocorra algum erro
     else:
         form = ProdutoForm(instance=produto)
     return render(request, 'estoque/editar_produto.html', {'form': form})

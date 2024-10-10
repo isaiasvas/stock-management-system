@@ -4,12 +4,16 @@ from .models import Produto, Fornecedor, Movimentacao
 class ProdutoForm(forms.ModelForm):
     class Meta:
         model = Produto
-        fields = ['nome', 'descricao', 'preco', 'fornecedor']
+        fields = ['nome', 'descricao', 'preco', 'fornecedor', 'categoria', 'peso', 'data_validade', 'imagem']
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'nome': forms.TextInput(attrs={'class':'form-control'}),
             'descricao': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'preco': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'peso': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control'}),
+            'data_validade': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
             'fornecedor': forms.Select(attrs={'class': 'form-control'}),
+            'imagem': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
     def clean_preco(self):
@@ -36,10 +40,22 @@ class FornecedorForm(forms.ModelForm):
 
 class MovimentacaoForm(forms.ModelForm):
     class Meta:
-        model = Movimentacao  # Certifique-se que o nome do modelo é "Movimentacao"
+        model = Movimentacao 
         fields = ['produto', 'quantidade', 'tipo']
         widgets = {
             'produto': forms.Select(attrs={'class': 'form-control'}),
             'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
         }
+
+    def clean(self):
+            cleaned_data = super().clean()
+            tipo = cleaned_data.get('tipo')
+            quantidade = cleaned_data.get('quantidade')
+            produto = cleaned_data.get('produto')
+
+            # Validação para garantir que há estoque suficiente em caso de saída
+            if tipo == 'saida' and produto and quantidade:
+                if produto.quantidade < quantidade:
+                    raise forms.ValidationError('Quantidade de saída maior do que o estoque disponível.')
+            return cleaned_data
